@@ -1,0 +1,92 @@
+#!/usr/bin/env node
+
+var program = require('commander')
+  , Github  = require('github')
+  , fs      = require('fs')
+  , blink   = require('node-blink');
+
+
+program
+  .version('0.0.1')
+  .usage('[options] <user> <repo>')
+  .option('-i, --interval <n>', 'Interval to check stars', parseInt)
+  .parse(process.argv);
+
+
+/**
+ * Github.
+ */
+
+var github = new Github({ version: '3.0.0' });
+
+
+/**
+ * Path to data.
+ */
+
+var data = 'data';
+
+
+/**
+ * Kick off the Github call.
+ */
+
+github.repos.get({
+  user : program.args[0],
+  repo : program.args[1]
+}, function (err, repo) {
+  stars(function (err, count) {
+    if (count) {
+      count = parseInt(count, '10');
+      if (count < repo.watchers) flash('gold');
+    }
+
+    setStars(repo.watchers);
+  });
+});
+
+
+/**
+ * Read stars.
+ */
+
+function stars (callback) {
+  fs.exists(data, function (exists) {
+    if (!exists) return callback(null, null);
+
+    fs.readFile(data, 'utf8', function (err, data) {
+      if (err) return callback(err);
+      callback(null, data);
+    });
+  });
+}
+
+
+/**
+ * Write stars.
+ *
+ * @param {Number} count - The new star count.
+ */
+
+function setStars (count, callback) {
+  fs.writeFile(data, count || '', callback);
+}
+
+
+/**
+ * Flash blink(1) with a `color` for a `duration`.
+ *
+ * @param {String|Array} color - A string or array of the color value.
+ * @param {Number} duration - The duration of the flash in ms, default 5000.
+ */
+
+function flash (color, duration) {
+  duration || (duration = 5000);
+
+  blink(function (err, b) {
+    b.set(color);
+    setTimeout(function () {
+      b.off();
+    }, 1000);
+  });
+}
