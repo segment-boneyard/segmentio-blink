@@ -1,6 +1,6 @@
 {
   "name": "blink",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Blink",
   "main": "index.js",
   "dependencies": {
@@ -15,5 +15,8 @@
   },
   "repository": "",
   "author": "ian@ianstormtaylor.com",
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.segment.io"
+  }
 }
